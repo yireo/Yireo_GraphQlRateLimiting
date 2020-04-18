@@ -1,7 +1,9 @@
 # Yireo GraphQlRateLimiting
-Magento 2 module to add rate limiting to GraphQL resources
+**Magento 2 module to add rate limiting to GraphQL resources**
 
-This module implements the [sunspikes/php-ratelimiter](https://packagist.org/packages/sunspikes/php-ratelimiter) in Magento 2.
+This module implements the [sunspikes/php-ratelimiter](https://packagist.org/packages/sunspikes/php-ratelimiter) in Magento 2. It checks how many GraphQL mutations and/or GraphQL queries are sent from a specific client to a Magento instance and if the number of these requests exceeds a configured maximum, a GraphQL error is generated
+
+This module is specifically recommended for limiting mutations, so that your Magento shop is not flooded with fake requests to create sessions, customers or other data. Usually, in a headless environment, the amount of mutations is limited.
 
 ## Usage
 Install this extension:
