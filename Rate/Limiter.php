@@ -24,6 +24,10 @@ use Yireo\GraphQlRateLimiting\Config\Config;
  */
 class Limiter
 {
+    const ERROR_MSG_LIMIT_QUERIES = 'A maximum of %d queries has been reached';
+
+    const ERROR_MSG_LIMIT_MUTATIONS = 'A maximum of %d mutations has been reached';
+
     /**
      * @var Config
      */
@@ -48,32 +52,87 @@ class Limiter
     }
 
     /**
+     * @param string $identifier
+     * @param int $maxRequests
+     * @param string $msg
+     * @return bool
+     * @throws Error
+     * @throws SyntaxError
+     */
+    public function limit(
+        string $identifier,
+        int $maxRequests,
+        string $msg = self::ERROR_MSG_LIMIT_QUERIES
+    ): bool {
+        if (!$this->config->enabled()) {
+            return false;
+        }
+
+        $rateLimiter = $this->getRateLimiter($maxRequests);
+        $throttler = $rateLimiter->get($identifier);
+        if ($throttler->access() === false) {
+            throw new Error(sprintf(__($msg), $maxRequests));
+        }
+
+        return true;
+    }
+
+    /**
      * @param string $source
      * @return bool
      * @throws Error
      * @throws SyntaxError
      */
-    public function execute(string $source): bool
+    public function limitBySource(string $source): bool
+    {
+        $type = $this->isMutationString($source);
+        $msg = ($type) ? self::ERROR_MSG_LIMIT_MUTATIONS : self::ERROR_MSG_LIMIT_QUERIES;
+        return $this->limit($source, $this->getMaxRequests($source), $msg);
+    }
+
+    /**
+     * @param string $identifier
+     * @return bool
+     * @throws Error
+     * @throws SyntaxError
+     */
+    public function limitQuery(string $identifier): bool
     {
         if (!$this->config->enabled()) {
             return false;
         }
 
-        $maxRequests = $this->getMaxRequests($source);
-        $cacheAdapter = $this->cacheAdapter;
-        $rateLimiter = new RateLimiter(
-            new ThrottlerFactory($cacheAdapter),
-            new HydratorFactory(),
-            $this->getThrottleSettings($source)
-        );
+        return $this->limit($identifier, $this->config->getMaxQueries());
+    }
 
-        $throttler = $rateLimiter->get($source);
-        if ($throttler->access() === false) {
-            $msg = 'A maximum of ' . $maxRequests . ' queries has been reached.';
-            throw new Error($msg);
+    /**
+     * @param string $identifier
+     * @return bool
+     * @throws Error
+     * @throws SyntaxError
+     */
+    public function limitMutation(string $identifier): bool
+    {
+        if (!$this->config->enabled()) {
+            return false;
         }
 
-        return true;
+        $msg = self::ERROR_MSG_LIMIT_MUTATIONS;
+        return $this->limit($identifier, $this->config->getMaxMutations(), $msg);
+    }
+
+    /**
+     * @param int $maxRequests
+     * @return RateLimiter
+     * @throws SyntaxError
+     */
+    private function getRateLimiter(int $maxRequests): RateLimiter
+    {
+        return new RateLimiter(
+            new ThrottlerFactory($this->cacheAdapter),
+            new HydratorFactory(),
+            $this->getThrottleSettings($maxRequests)
+        );
     }
 
     /**
@@ -98,11 +157,11 @@ class Limiter
     private function getOperationFromSource(string $source)
     {
         $sourceDocument = Parser::parse($source)->toArray(true);
-        if (isset($sourceDocument['definitions']['operation'])) {
-            return $sourceDocument['definitions']['operation'];
+        if (isset($sourceDocument['definitions'][0]['operation'])) {
+            return (string)$sourceDocument['definitions'][0]['operation'];
         }
 
-        return 'unknown';
+        return 'query';
     }
 
     /**
@@ -119,9 +178,8 @@ class Limiter
      * @return ThrottleSettingsInterface
      * @throws SyntaxError
      */
-    private function getThrottleSettings(string $source): ThrottleSettingsInterface
+    private function getThrottleSettings(int $maxRequests): ThrottleSettingsInterface
     {
-        $maxRequests = $this->getMaxRequests($source);
         $timeFrameInSeconds = $this->config->getTimeFrameInSeconds();
         $settings = new ElasticWindowSettings($maxRequests, $timeFrameInSeconds);
         return $settings;

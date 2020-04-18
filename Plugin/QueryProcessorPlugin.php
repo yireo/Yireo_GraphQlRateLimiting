@@ -48,7 +48,7 @@ class QueryProcessorPlugin
         array $variableValues = null,
         string $operationName = null
     ) {
-        $this->rateLimiter->execute($source);
+        $this->rateLimiter->limitBySource($source);
         return [$schema, $source, $contextValue, $variableValues, $operationName];
     }
 }
