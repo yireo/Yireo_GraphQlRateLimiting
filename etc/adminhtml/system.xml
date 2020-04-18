@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * GraphQlRateLimitingplugin for Magento 2
+ *
+ * @author      Yireo
+ * @copyright   Copyright 2020 Yireo (https://www.yireo.com/)
+ * @license     Open Source License
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="yireo" sortOrder="999" translate="label">
+            <label>Yireo</label>
+        </tab>
+        <section id="graphql_rate_limiting" translate="label" sortOrder="342" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Yireo GraphQL Rate Limiting</label>
+            <tab>yireo</tab>
+            <resource>Yireo_GraphQlRateLimiting::config</resource>
+            <group id="settings" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Settings</label>
+                <field id="enabled" type="text" translate="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enabled</label>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
