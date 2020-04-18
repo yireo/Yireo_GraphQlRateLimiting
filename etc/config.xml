@@ -15,10 +15,10 @@
                 <enabled>1</enabled>
                 <limit_mutations>1</limit_mutations>
                 <limit_queries>0</limit_queries>
-                <max_mutations>4</max_mutations>
-                <max_queries>20</max_queries>
+                <max_mutations>10</max_mutations>
+                <max_queries>100</max_queries>
                 <timeframe>10</timeframe>
-                <cache_ttl>60</cache_ttl>
+                <cache_ttl>600</cache_ttl>
             </settings>
         </graphql_rate_limiting>
     </default>
