@@ -28,7 +28,7 @@ query {
   }
 }
 ```
-Configure the following settings:
+Configure the following settings in this Magento module (under the **Store Configuration**):
 
 - **Enabled**: *Yes*
 - **Limit Queries**: *Yes*
