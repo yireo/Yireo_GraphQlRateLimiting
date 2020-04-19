@@ -6,7 +6,6 @@ namespace Yireo\GraphQlRateLimiting\Rate;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\SyntaxError;
-use GraphQL\Language\Parser;
 use Sunspikes\Ratelimit\RateLimiter;
 use Sunspikes\Ratelimit\Throttle\Factory\ThrottlerFactory;
 use Sunspikes\Ratelimit\Throttle\Hydrator\HydratorFactory;
@@ -14,6 +13,7 @@ use Sunspikes\Ratelimit\Throttle\Settings\ElasticWindowSettings;
 use Sunspikes\Ratelimit\Throttle\Settings\ThrottleSettingsInterface;
 use Yireo\GraphQlRateLimiting\Cache\Adapter;
 use Yireo\GraphQlRateLimiting\Config\Config;
+use Yireo\GraphQlRateLimiting\Request\Information;
 
 /**
  * Class Limiter
@@ -34,18 +34,25 @@ class Limiter
      * @var Adapter
      */
     private $cacheAdapter;
+    /**
+     * @var Information
+     */
+    private $requestInformation;
 
     /**
      * QueryComplexityLimiterPlugin constructor.
      * @param Config $config
      * @param Adapter $cacheAdapter
+     * @param Information $requestInformation
      */
     public function __construct(
         Config $config,
-        Adapter $cacheAdapter
+        Adapter $cacheAdapter,
+        Information $requestInformation
     ) {
         $this->config = $config;
         $this->cacheAdapter = $cacheAdapter;
+        $this->requestInformation = $requestInformation;
     }
 
     /**
@@ -82,7 +89,7 @@ class Limiter
      */
     public function limitBySource(string $source): bool
     {
-        $type = $this->isMutationString($source);
+        $type = $this->requestInformation->isMutationString($source);
         $msg = ($type) ? self::ERROR_MSG_LIMIT_MUTATIONS : self::ERROR_MSG_LIMIT_QUERIES;
         return $this->limit($source, $this->getMaxRequests($source), $msg);
     }
@@ -139,36 +146,11 @@ class Limiter
      */
     private function getMaxRequests(string $source): int
     {
-        if ($this->isMutationString($source)) {
+        if ($this->requestInformation->isMutationString($source)) {
             return $this->config->getMaxMutations();
         }
 
         return $this->config->getMaxQueries();
-    }
-
-    /**
-     * @param string $source
-     * @return string
-     * @throws SyntaxError
-     */
-    private function getOperationFromSource(string $source)
-    {
-        $sourceDocument = Parser::parse($source)->toArray(true);
-        if (isset($sourceDocument['definitions'][0]['operation'])) {
-            return (string)$sourceDocument['definitions'][0]['operation'];
-        }
-
-        return 'query';
-    }
-
-    /**
-     * @param string $source
-     * @return bool
-     * @throws SyntaxError
-     */
-    private function isMutationString(string $source): bool
-    {
-        return ($this->getOperationFromSource($source) === 'mutation');
     }
 
     /**
