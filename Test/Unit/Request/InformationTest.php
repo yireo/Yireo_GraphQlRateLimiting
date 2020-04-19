@@ -17,6 +17,18 @@ class InformationTest extends TestCase
     /**
      * @throws SyntaxError
      */
+    public function testGetEndpointFromSource()
+    {
+        $requestInformation = new Information();
+        foreach ($this->getValidQueries() as $query) {
+            $endpoint = $requestInformation->getEndpointFromSource($query);
+            $this->assertEquals('helloWorld', $endpoint);
+        }
+    }
+
+    /**
+     * @throws SyntaxError
+     */
     public function testGetOperationFromSource()
     {
         $requestInformation = new Information();
@@ -66,7 +78,7 @@ query { helloWorld { hello } }
 EOT,
             'query2' => <<<EOT
 query { 
-    helloWorld { 
+    helloWorld(name: "World") { 
         hello 
     } 
 }
@@ -88,7 +100,7 @@ mutation { helloWorld { hello } }
 EOT,
             'query2' => <<<EOT
 mutation { 
-    helloWorld { 
+    helloWorld(name: "World") { 
         hello 
     } 
 }

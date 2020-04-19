@@ -5,6 +5,7 @@ namespace Yireo\GraphQlRateLimiting\Request;
 
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
+use Yireo\GraphQlRateLimiting\Exception\RequestParsingException;
 
 /**
  * Class Information
@@ -12,6 +13,22 @@ use GraphQL\Language\Parser;
  */
 class Information
 {
+    /**
+     * @param string $source
+     * @return string
+     * @throws RequestParsingException
+     * @throws SyntaxError
+     */
+    public function getEndpointFromSource(string $source)
+    {
+        $sourceDocument = Parser::parse($source)->toArray(true);
+        if (isset($sourceDocument['definitions'][0]['selectionSet']['selections'][0]['name']['value'])) {
+            return (string)$sourceDocument['definitions'][0]['selectionSet']['selections'][0]['name']['value'];
+        }
+
+        throw new RequestParsingException('Unknown endpoint');
+    }
+
     /**
      * @param string $source
      * @return string
