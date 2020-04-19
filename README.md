@@ -61,6 +61,7 @@ vendor/bin/phpunit --bootstrap=app/bootstrap.php app/code/Yireo/GraphQlRateLimit
 ```
 
 ## Todo
+- Set source identier to endpoint of query or mutation only, not entire query or mutation
 - Double-check that multiple connections from different clients do not block a specific resource 
 - Add integation tests
 - Add `MovingWindowSettings` and `FixedWindowSettings`
