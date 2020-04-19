@@ -61,7 +61,6 @@ vendor/bin/phpunit --bootstrap=app/bootstrap.php app/code/Yireo/GraphQlRateLimit
 ```
 
 ## Todo
-- Double-check with functional tests that multiple connections from different clients do not block a specific resource 
 - Add integation tests
 - Add `MovingWindowSettings` and `FixedWindowSettings`
 - Create a little video about this
