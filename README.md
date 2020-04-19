@@ -57,8 +57,17 @@ This extension adds a Cache Type `GRAPHQL_RATE_LIMITING` to the Magento cache fr
 ```bash
 bin/magento cache:status
 bin/magento cache:enable graphql_rate_limiting
+vendor/bin/phpunit --bootstrap=app/bootstrap.php app/code/Yireo/GraphQlRateLimiting/Test/Functional/CacheTypeTest.php
+```
+
+## Other functional tests
+To run other functional tests, the following can be used:
+```bash
+bin/magento cache:enable graphql_rate_limiting
 vendor/bin/phpunit --bootstrap=app/bootstrap.php app/code/Yireo/GraphQlRateLimiting/Test/Functional/
 ```
+
+Please note that this resets your configuration. Do not do this on a live Magento site.
 
 ## Todo
 - Add integation tests
