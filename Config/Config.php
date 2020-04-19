@@ -83,4 +83,12 @@ class Config
     {
         return (int)$this->scopeConfig->getValue('graphql_rate_limiting/settings/cache_ttl');
     }
+
+    /**
+     * @return bool
+     */
+    public function identifyByUserAgent(): bool
+    {
+        return (bool)$this->scopeConfig->getValue('graphql_rate_limiting/settings/identify_by_user_agent');
+    }
 }

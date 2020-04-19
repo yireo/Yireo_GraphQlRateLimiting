@@ -7,6 +7,7 @@ namespace Yireo\GraphQlRateLimiting\Request;
 use GraphQL\Error\SyntaxError;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
+use Yireo\GraphQlRateLimiting\Config\Config;
 use Yireo\GraphQlRateLimiting\Exception\RequestParsingException;
 
 /**
@@ -30,22 +31,28 @@ class Identification
      * @var RemoteAddress
      */
     private $remoteIp;
+    /**
+     * @var Config
+     */
+    private $config;
 
     /**
      * Identification constructor.
      * @param Information $information
      * @param Header $httpHeader
      * @param RemoteAddress $remoteIp
+     * @param Config $config
      */
     public function __construct(
         Information $information,
         Header $httpHeader,
-        RemoteAddress $remoteIp
-
+        RemoteAddress $remoteIp,
+        Config $config
     ) {
         $this->information = $information;
         $this->httpHeader = $httpHeader;
         $this->remoteIp = $remoteIp;
+        $this->config = $config;
     }
 
     /**
@@ -59,8 +66,11 @@ class Identification
         $parts = [];
         $parts[] = $this->information->getOperationFromSource($source);
         $parts[] = $this->information->getEndpointFromSource($source);
-        $parts[] = $this->httpHeader->getHttpUserAgent();
         $parts[] = $this->remoteIp->getRemoteAddress();
+
+        if ($this->config->identifyByUserAgent()) {
+            $parts[] = $this->httpHeader->getHttpUserAgent();
+        }
 
         return implode('/', $parts);
     }

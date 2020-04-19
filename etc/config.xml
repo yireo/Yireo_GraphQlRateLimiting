@@ -19,6 +19,7 @@
                 <max_queries>100</max_queries>
                 <timeframe>10</timeframe>
                 <cache_ttl>600</cache_ttl>
+                <identify_by_user_agent>0</identify_by_user_agent>
             </settings>
         </graphql_rate_limiting>
     </default>
