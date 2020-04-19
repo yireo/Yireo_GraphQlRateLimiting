@@ -72,5 +72,4 @@ Please note that this resets your configuration. Do not do this on a live Magent
 ## Todo
 - Add integation tests
 - Add `MovingWindowSettings` and `FixedWindowSettings`
-- Create a little video about this
 - Allow for specific endpoints to be limited
