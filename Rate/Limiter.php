@@ -13,6 +13,7 @@ use Sunspikes\Ratelimit\Throttle\Settings\ElasticWindowSettings;
 use Sunspikes\Ratelimit\Throttle\Settings\ThrottleSettingsInterface;
 use Yireo\GraphQlRateLimiting\Cache\Adapter;
 use Yireo\GraphQlRateLimiting\Config\Config;
+use Yireo\GraphQlRateLimiting\Request\Identification;
 use Yireo\GraphQlRateLimiting\Request\Information;
 
 /**
@@ -38,25 +39,32 @@ class Limiter
      * @var Information
      */
     private $requestInformation;
+    /**
+     * @var Identification
+     */
+    private $requestIdentification;
 
     /**
      * QueryComplexityLimiterPlugin constructor.
      * @param Config $config
      * @param Adapter $cacheAdapter
      * @param Information $requestInformation
+     * @param Identification $requestIdentification
      */
     public function __construct(
         Config $config,
         Adapter $cacheAdapter,
-        Information $requestInformation
+        Information $requestInformation,
+        Identification $requestIdentification
     ) {
         $this->config = $config;
         $this->cacheAdapter = $cacheAdapter;
         $this->requestInformation = $requestInformation;
+        $this->requestIdentification = $requestIdentification;
     }
 
     /**
-     * @param string $identifier
+     * @param string $source
      * @param int $maxRequests
      * @param string $msg
      * @return bool
@@ -64,7 +72,7 @@ class Limiter
      * @throws SyntaxError
      */
     public function limit(
-        string $identifier,
+        string $source,
         int $maxRequests,
         string $msg = self::ERROR_MSG_LIMIT_QUERIES
     ): bool {
@@ -72,6 +80,7 @@ class Limiter
             return false;
         }
 
+        $identifier = $this->requestIdentification->getUniqIdFromRequestAndSource($source);
         $rateLimiter = $this->getRateLimiter($maxRequests);
         $throttler = $rateLimiter->get($identifier);
         if ($throttler->access() === false) {
