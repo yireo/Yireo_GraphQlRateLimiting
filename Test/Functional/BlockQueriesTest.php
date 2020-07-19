@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Test\Functional;
 
+use Laminas\Http\Headers;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\GraphQl\Controller\GraphQl;
 use Magento\Framework\App\Request\Http as Request;
 use Yireo\GraphQlRateLimiting\Cache\Adapter;
-use Zend\Http\Headers;
-use Zend\Json\Json;
 
 /**
  * Class CacheTypeTest
@@ -67,11 +66,11 @@ class BlockQueriesTest extends AbstractTestCase
         $request = $this->getObjectManager()->create(Request::class);
         $headers = new Headers();
         $headers->addHeaderLine('Content-Type', 'application/json');
-        $request->setMethod(Request::METHOD_POST);
+        $request->setMethod('POST');
         $request->setHeaders($headers);
 
         $graphQlRequest = 'mutation { createEmptyCart }';
-        $request->setContent(Json::encode(['query' => $graphQlRequest, 'variables' => []]));
+        $request->setContent(json_encode(['query' => $graphQlRequest, 'variables' => []]));
         return $request;
     }
 }
