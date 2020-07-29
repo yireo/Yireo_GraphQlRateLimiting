@@ -39,9 +39,9 @@ class BlockQueriesTest extends AbstractTestCase
             $body = (string)$response->getBody();
 
             if ($i === 4) {
-                $this->assertContains('A maximum of 4 mutations has been reached', $body, $body);
+                $this->assertTrue((bool)strpos($body, 'A maximum of 4 mutations has been reached'));
             } else {
-                $this->assertContains('createEmptyCart', $body, $body);
+                $this->assertTrue((bool)strpos($body, 'createEmptyCart'));
             }
         }
     }

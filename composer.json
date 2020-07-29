@@ -2,7 +2,7 @@
   "name": "yireo/magento2-graph-ql-rate-limiting",
   "license": "OSL-3.0",
   "type": "magento2-module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "https://github.com/yireo/Yireo_GraphQlRateLimiting",
   "description": "Magento 2 module to add rate limiting to GraphQL resources",
   "keywords": [
@@ -16,10 +16,10 @@
     }
   ],
   "require": {
-    "sunspikes/php-ratelimiter": "^1.2",
-    "magento/framework": "^100.1|^101.0|^102.0",
+    "magento/framework": "^100.1|^101.0|^102.0|^103.0",
     "magento/module-checkout": "^100.1",
-    "magento/module-quote": "^100.1|^101.0"
+    "magento/module-quote": "^100.1|^101.0",
+    "sunspikes/php-ratelimiter": "^1.2"
   },
   "require-dev": {
     "laminas/laminas-http": "^2.12",
