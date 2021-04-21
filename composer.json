@@ -22,7 +22,7 @@
     "sunspikes/php-ratelimiter": "^1.2"
   },
   "require-dev": {
-    "laminas/laminas-http": "^2.12",
+    "laminas/laminas-http": "*",
     "ext/json": "*"
   },
   "autoload": {
