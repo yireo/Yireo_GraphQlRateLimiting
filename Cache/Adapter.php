@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Cache;
 
@@ -10,21 +8,12 @@ use Magento\Framework\App\Cache\Manager as CacheManager;
 use Yireo\GraphQlRateLimiting\Cache\Type\CacheType;
 use Yireo\GraphQlRateLimiting\Config\Config;
 
-/**
- * Class Adapter
- * @package Yireo\GraphQlRateLimiting\Cache
- */
 class Adapter implements CacheAdapterInterface
 {
     /**
      * @var Config
      */
     private $config;
-
-    /**
-     * @var CacheManager
-     */
-    private $cacheManager;
 
     /**
      * @var CacheType
@@ -39,18 +28,15 @@ class Adapter implements CacheAdapterInterface
     /**
      * Adapter constructor.
      * @param Config $config
-     * @param CacheManager $cacheManager
      * @param CacheType $cacheType
      * @param Serialize $serialize
      */
     public function __construct(
         Config $config,
-        CacheManager $cacheManager,
         CacheType $cacheType,
         Serialize $serialize
     ) {
         $this->config = $config;
-        $this->cacheManager = $cacheManager;
         $this->cacheType = $cacheType;
         $this->serialize = $serialize;
     }

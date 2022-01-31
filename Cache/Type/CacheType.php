@@ -1,16 +1,10 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Cache\Type;
 
 use Magento\Framework\App\Cache\Type\FrontendPool;
 use Magento\Framework\Cache\Frontend\Decorator\TagScope;
 
-/**
- * Class CacheType
- * @package Yireo\GraphQlRateLimiting\Cache\Type
- */
 class CacheType extends TagScope
 {
     const TYPE_IDENTIFIER = 'graphql_rate_limiting';

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Test\Functional;
 
@@ -8,10 +7,6 @@ use Magento\Framework\ObjectManagerInterface;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Runner\Exception;
 
-/**
- * Class AbstractTestCase
- * @package Yireo\GraphQlRateLimiting\Test\Functional
- */
 class AbstractTestCase extends TestCase
 {
     /**

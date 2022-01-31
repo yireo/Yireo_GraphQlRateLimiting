@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Test\Functional;
 
@@ -8,10 +6,6 @@ use Magento\Framework\App\Bootstrap;
 use PHPUnit\Runner\Exception;
 use Yireo\GraphQlRateLimiting\Cache\Type\CacheType;
 
-/**
- * Class CacheTypeTest
- * @package Yireo\GraphQlRateLimiting\Test\Functional
- */
 class CacheTypeTest extends AbstractTestCase
 {
     /**

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Test\Functional;
 
@@ -10,10 +8,6 @@ use Magento\GraphQl\Controller\GraphQl;
 use Magento\Framework\App\Request\Http as Request;
 use Yireo\GraphQlRateLimiting\Cache\Adapter;
 
-/**
- * Class CacheTypeTest
- * @package Yireo\GraphQlRateLimiting\Test\Functional
- */
 class BlockQueriesTest extends AbstractTestCase
 {
     /**

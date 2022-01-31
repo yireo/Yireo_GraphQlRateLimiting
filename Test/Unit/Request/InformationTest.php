@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Test\Unit\Request;
 
@@ -8,10 +6,6 @@ use GraphQL\Error\SyntaxError;
 use PHPUnit\Framework\TestCase;
 use Yireo\GraphQlRateLimiting\Request\Information;
 
-/**
- * Class InformationTest
- * @package Yireo\GraphQlRateLimiting\Test\Unit\Request
- */
 class InformationTest extends TestCase
 {
     /**

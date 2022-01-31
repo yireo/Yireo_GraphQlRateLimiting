@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Request;
 
@@ -12,8 +10,6 @@ use Yireo\GraphQlRateLimiting\Exception\RequestParsingException;
 
 /**
  * Class Identification to identify a specific combination of unique visitor and GraphQL request
- *
- * @package Yireo\GraphQlRateLimiting\Request
  */
 class Identification
 {

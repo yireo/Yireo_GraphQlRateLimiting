@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Plugin;
 
@@ -9,10 +8,6 @@ use Magento\Framework\GraphQl\Query\QueryProcessor;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Schema;
 
-/**
- * Class QueryComplexityLimiterPlugin
- * @package Yireo\GraphQlRateLimiting\Plugin
- */
 class QueryProcessorPlugin
 {
     /**

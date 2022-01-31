@@ -4,10 +4,6 @@ namespace Yireo\GraphQlRateLimiting\Config;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
-/**
- * Class Config
- * @package Yireo\GraphQlRateLimiting\Config
- */
 class Config
 {
     /**

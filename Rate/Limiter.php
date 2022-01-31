@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Rate;
 
@@ -16,10 +14,6 @@ use Yireo\GraphQlRateLimiting\Config\Config;
 use Yireo\GraphQlRateLimiting\Request\Identification;
 use Yireo\GraphQlRateLimiting\Request\Information;
 
-/**
- * Class Limiter
- * @package Yireo\GraphQlRateLimiting\Rate
- */
 class Limiter
 {
     const ERROR_MSG_LIMIT_QUERIES = 'A maximum of %d queries has been reached';

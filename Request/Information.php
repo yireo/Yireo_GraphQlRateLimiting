@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Request;
 
@@ -7,10 +6,6 @@ use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Parser;
 use Yireo\GraphQlRateLimiting\Exception\RequestParsingException;
 
-/**
- * Class Information
- * @package Yireo\GraphQlRateLimiting\Request
- */
 class Information
 {
     /**
