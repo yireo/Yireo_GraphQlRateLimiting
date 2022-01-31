@@ -1,10 +1,7 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\GraphQlRateLimiting\Config;
 
-use GraphQL\Error\Error;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 
 /**
