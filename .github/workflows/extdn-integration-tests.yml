@@ -34,12 +34,6 @@ jobs:
       COMPOSER_NAME: ${{ secrets.COMPOSER_NAME }}
     steps:
       - uses: actions/checkout@v2
-      - uses: docker://yireo/github-actions-magento-integration-tests:7.3
-        env:
-          MAGENTO_VERSION: '2.3.5-p2'
-        with:
-          magento_pre_install_script: .github/workflows/extdn-integration-tests-pre-install-m23.sh
-          magento_post_install_script: .github/workflows/extdn-integration-tests-post-install.sh
       - uses: docker://yireo/github-actions-magento-integration-tests:7.4
         env:
           MAGENTO_VERSION: '2.4.3-p1'
