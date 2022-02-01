@@ -22,7 +22,7 @@ class Config
     }
 
     /**
-     * @return int
+     * @return bool
      */
     public function enabled(): bool
     {

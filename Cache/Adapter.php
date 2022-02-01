@@ -88,6 +88,6 @@ class Adapter implements CacheAdapterInterface
      */
     public function clear()
     {
-        return $this->cacheType->clean();
+        $this->cacheType->clean();
     }
 }

@@ -30,9 +30,9 @@ class QueryProcessorPlugin
      * @param Schema $schema
      * @param string $source
      * @param ContextInterface|null $contextValue
-     * @param array|null $variableValues
+     * @param mixed[]|null $variableValues
      * @param string|null $operationName
-     * @return array
+     * @return mixed[]
      * @throws Error
      */
     public function beforeProcess(
@@ -42,7 +42,7 @@ class QueryProcessorPlugin
         ContextInterface $contextValue = null,
         array $variableValues = null,
         string $operationName = null
-    ) {
+    ): array {
         $this->rateLimiter->limitBySource($source);
         return [$schema, $source, $contextValue, $variableValues, $operationName];
     }

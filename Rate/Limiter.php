@@ -78,7 +78,7 @@ class Limiter
         $rateLimiter = $this->getRateLimiter($maxRequests);
         $throttler = $rateLimiter->get($identifier);
         if ($throttler->access() === false) {
-            throw new Error(sprintf(__($msg), $maxRequests));
+            throw new Error(sprintf((string)__($msg), $maxRequests));
         }
 
         return true;

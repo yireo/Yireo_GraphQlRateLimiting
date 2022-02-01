@@ -2,7 +2,6 @@
 
 namespace Yireo\GraphQlRateLimiting\Test\Integration;
 
-use Magento\Framework\ObjectManagerInterface;
 use Magento\GraphQl\Service\GraphQlRequest;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
