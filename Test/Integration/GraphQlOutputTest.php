@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  */
 class GraphQlOutputTest extends TestCase
 {
-    private ObjectManagerInterface $objectManager;
+    private $objectManager;
 
     protected function setUp(): void
     {
