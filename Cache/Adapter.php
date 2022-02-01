@@ -65,6 +65,7 @@ class Adapter implements CacheAdapterInterface
 
         $value = $this->serialize->serialize($value);
         $this->cacheType->save($value, $key, [], $ttl);
+        return null;
     }
 
     /**
