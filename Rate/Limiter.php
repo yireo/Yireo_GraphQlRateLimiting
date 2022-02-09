@@ -29,10 +29,12 @@ class Limiter
      * @var Adapter
      */
     private $cacheAdapter;
+
     /**
      * @var Information
      */
     private $requestInformation;
+
     /**
      * @var Identification
      */

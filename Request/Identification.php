@@ -27,6 +27,7 @@ class Identification
      * @var RemoteAddress
      */
     private $remoteIp;
+
     /**
      * @var Config
      */

@@ -22,6 +22,8 @@
     "sunspikes/php-ratelimiter": "^1.2.0"
   },
   "require-dev": {
+    "phpunit/phpunit": "*",
+    "yireo/magento2-integration-test-helper": "@dev",
     "laminas/laminas-http": "*",
     "ext/json": "*"
   },
