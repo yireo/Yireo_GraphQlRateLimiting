@@ -10,6 +10,10 @@ class PluginTest extends AbstractTestCase
 {
     public function testIfPluginIsEnabled()
     {
-        $this->assertInterceptorPluginIsRegistered(QueryProcessor::class, QueryProcessorPlugin::class, 'Yireo_GraphQlRateLimiting_QueryProcessorPlugin');
+        $this->assertInterceptorPluginIsRegistered(
+            QueryProcessor::class,
+            QueryProcessorPlugin::class,
+            'Yireo_GraphQlRateLimiting_QueryProcessorPlugin'
+        );
     }
 }

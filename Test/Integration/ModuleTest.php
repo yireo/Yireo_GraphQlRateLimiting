@@ -6,7 +6,7 @@ use Yireo\IntegrationTestHelper\Test\Integration\AbstractTestCase;
 
 class ModuleTest extends AbstractTestCase
 {
-    public function testIfModulesIsWorking()
+    public function testIfModuleIsWorking()
     {
         $this->assertModuleIsRegistered('Yireo_GraphQlRateLimiting');
         $this->assertModuleIsEnabled('Yireo_GraphQlRateLimiting');
