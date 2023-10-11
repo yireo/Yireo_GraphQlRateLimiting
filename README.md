@@ -70,6 +70,11 @@ vendor/bin/phpunit --bootstrap=app/bootstrap.php app/code/Yireo/GraphQlRateLimit
 Please note that this resets your configuration. Do not do this on a live Magento site.
 
 ## Todo
+- Make compatible with PHP 8
+- Allow saving data in Redis
+- Check what Adobe Commerce uses for `backpressure-logger`
 - Add integation tests
 - Add `MovingWindowSettings` and `FixedWindowSettings`
 - Allow for specific endpoints to be limited
+- Make sure to reply with HTTP/1.1 429 Too Many Requests
+
