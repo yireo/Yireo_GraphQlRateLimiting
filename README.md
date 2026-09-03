@@ -1,4 +1,12 @@
 # Yireo GraphQlRateLimiting
+
+<!-- badges.specs.start -->
+![Magento version](https://img.shields.io/badge/Magento-2.4.6%20%7C%202.4.9-orange)
+![PHP version](https://img.shields.io/badge/PHP-8.2%E2%80%938.5-777BB4)
+![License](https://img.shields.io/badge/License-OSL--3.0-blue)
+![Latest Version](https://img.shields.io/packagist/v/yireo/magento2-graph-ql-rate-limiting)
+<!-- badges.specs.end -->
+
 **Magento 2 module to add rate limiting to GraphQL resources**
 
 **WARNING: As of yet, the sunspikes/php-ratelimiter library is no longer being maintained. And because of this, this module is dead, until it is refactored to use another rate limiting tool.**
@@ -80,3 +88,13 @@ Please note that this resets your configuration. Do not do this on a live Magent
 - Allow for specific endpoints to be limited
 - Make sure to reply with HTTP/1.1 429 Too Many Requests
 
+
+## Current status
+
+<!-- badges.test.start -->
+![Static Tests](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/static-tests.yml?label=static-tests)
+![Unit Tests](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/unit-tests.yml?label=unit-tests)
+![Integration Tests](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/integration-tests.yml?label=integration-tests)
+![Playwright](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/playwright.yml?label=playwright)
+![DI Compilation](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/compile.yml?label=compile)
+<!-- badges.test.end -->
