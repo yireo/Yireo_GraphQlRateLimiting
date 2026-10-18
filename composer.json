@@ -26,7 +26,7 @@
         "phpunit/phpunit": "*",
         "yireo/magento2-integration-test-helper": "@dev",
         "laminas/laminas-http": "*",
-        "ext/json": "*"
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {

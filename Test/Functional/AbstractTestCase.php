@@ -5,7 +5,7 @@ namespace Yireo\GraphQlRateLimiting\Test\Functional;
 use Magento\Framework\App\Bootstrap;
 use Magento\Framework\ObjectManagerInterface;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Runner\Exception;
+use RuntimeException;
 
 class AbstractTestCase extends TestCase
 {
@@ -15,7 +15,7 @@ class AbstractTestCase extends TestCase
     protected function getObjectManager(): ObjectManagerInterface
     {
         if (!defined('BP')) {
-            throw new Exception('Constant BP is not defined. Are you calling this test with the right bootstrap?');
+            throw new RuntimeException('Constant BP is not defined. Are you calling this test with the right bootstrap?');
         }
 
         $bootstrap = Bootstrap::create(BP, $_SERVER);
