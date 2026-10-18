@@ -3,6 +3,8 @@
 namespace Yireo\GraphQlRateLimiting\Plugin;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\Printer;
 use Yireo\GraphQlRateLimiting\Rate\Limiter as RateLimiter;
 use Magento\Framework\GraphQl\Query\QueryProcessor;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
@@ -28,7 +30,7 @@ class QueryProcessorPlugin
     /**
      * @param QueryProcessor $queryProcessor
      * @param Schema $schema
-     * @param string $source
+     * @param DocumentNode|string $source
      * @param ContextInterface|null $contextValue
      * @param mixed[]|null $variableValues
      * @param string|null $operationName
@@ -38,12 +40,13 @@ class QueryProcessorPlugin
     public function beforeProcess(
         QueryProcessor $queryProcessor,
         Schema $schema,
-        string $source,
-        ContextInterface $contextValue = null,
-        array $variableValues = null,
-        string $operationName = null
+        DocumentNode|string $source,
+        ?ContextInterface $contextValue = null,
+        ?array $variableValues = null,
+        ?string $operationName = null
     ): array {
-        $this->rateLimiter->limitBySource($source);
+        $sourceString = $source instanceof DocumentNode ? Printer::doPrint($source) : $source;
+        $this->rateLimiter->limitBySource($sourceString);
         return [$schema, $source, $contextValue, $variableValues, $operationName];
     }
 }
