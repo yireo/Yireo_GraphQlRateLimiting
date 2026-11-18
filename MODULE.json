@@ -2,6 +2,8 @@
     "module_name": "Yireo_GraphQlRateLimiting",
     "composer_name": "yireo/magento2-graph-ql-rate-limiting",
     "sequence": [
+        "Magento_Backend",
+        "Magento_Config",
         "Magento_GraphQl"
     ],
     "phpcs_severity": "7",
