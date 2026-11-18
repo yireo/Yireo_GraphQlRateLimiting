@@ -3,5 +3,7 @@
     "composer_name": "yireo/magento2-graph-ql-rate-limiting",
     "sequence": [
         "Magento_GraphQl"
-    ]
+    ],
+    "phpcs_severity": "7",
+    "phpstan_level": "1"
 }
