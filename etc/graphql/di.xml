@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\GraphQl\Controller\GraphQl">
+        <plugin name="Yireo_GraphQlRateLimiting_GraphQlPlugin" type="Yireo\GraphQlRateLimiting\Plugin\GraphQlPlugin" sortOrder="10"/>
+    </type>
+</config>

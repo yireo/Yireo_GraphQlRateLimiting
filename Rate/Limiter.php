@@ -20,6 +20,8 @@ class Limiter
 
     const ERROR_MSG_LIMIT_MUTATIONS = 'A maximum of %d mutations has been reached';
 
+    private bool $limitExceeded = false;
+
     /**
      * @var Config
      */
@@ -80,10 +82,29 @@ class Limiter
         $rateLimiter = $this->getRateLimiter($maxRequests);
         $throttler = $rateLimiter->get($identifier);
         if ($throttler->access() === false) {
+            $this->limitExceeded = true;
             throw new Error(sprintf((string)__($msg), $maxRequests));
         }
 
         return true;
+    }
+
+    public function isLimitExceeded(): bool
+    {
+        return $this->limitExceeded;
+    }
+
+    public function resetLimitExceeded(): void
+    {
+        $this->limitExceeded = false;
+    }
+
+    public function consumeLimitExceeded(): bool
+    {
+        $limitExceeded = $this->limitExceeded;
+        $this->resetLimitExceeded();
+
+        return $limitExceeded;
     }
 
     /**
