@@ -7,5 +7,5 @@
         "Magento_GraphQl"
     ],
     "phpcs_severity": "7",
-    "phpstan_level": "1"
+    "phpstan_level": "2"
 }
