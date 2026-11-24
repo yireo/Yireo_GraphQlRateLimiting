@@ -3,4 +3,7 @@
     <type name="Magento\GraphQl\Controller\GraphQl">
         <plugin name="Yireo_GraphQlRateLimiting_GraphQlPlugin" type="Yireo\GraphQlRateLimiting\Plugin\GraphQlPlugin" sortOrder="10"/>
     </type>
+    <type name="Magento\Framework\GraphQl\Query\QueryProcessor">
+        <plugin name="Yireo_GraphQlRateLimiting_QueryProcessorPlugin" type="Yireo\GraphQlRateLimiting\Plugin\QueryProcessorPlugin"/>
+    </type>
 </config>
