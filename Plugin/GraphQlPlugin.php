@@ -5,31 +5,36 @@ namespace Yireo\GraphQlRateLimiting\Plugin;
 use Magento\Framework\App\Response\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\GraphQl\Controller\GraphQl;
-use Yireo\GraphQlRateLimiting\Config\Config;
 use Yireo\GraphQlRateLimiting\Rate\Limiter;
 
 class GraphQlPlugin
 {
+    /**
+     * @param Limiter $limiter
+     */
     public function __construct(
-        private Limiter $limiter,
-        private Config $config
+        private readonly Limiter $limiter
     ) {
     }
 
+    /**
+     * @param GraphQl $subject
+     * @return void
+     */
     public function beforeDispatch(GraphQl $subject): void
     {
         $this->limiter->resetLimitExceeded();
     }
 
+    /**
+     * @param GraphQl $subject
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
     public function afterDispatch(GraphQl $subject, ResponseInterface $response): ResponseInterface
     {
-        $limitExceeded = $this->limiter->consumeLimitExceeded();
-        if ($limitExceeded && $response instanceof Http) {
-            $retryAfter = $this->config->getTimeFrameInSeconds();
-            if ($retryAfter <= 0) {
-                $retryAfter = $this->config->getCacheTtlInSeconds();
-            }
-
+        $retryAfter = $this->limiter->getRetryAfter();
+        if ($this->limiter->consumeLimitExceeded() && $response instanceof Http) {
             $response->setHttpResponseCode(429);
             $response->setHeader('Retry-After', (string)$retryAfter, true);
             $response->setNoCacheHeaders();

@@ -3,102 +3,109 @@
 namespace Yireo\GraphQlRateLimiting\Rate;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\SyntaxError;
-use Sunspikes\Ratelimit\RateLimiter;
-use Sunspikes\Ratelimit\Throttle\Factory\ThrottlerFactory;
-use Sunspikes\Ratelimit\Throttle\Hydrator\HydratorFactory;
-use Sunspikes\Ratelimit\Throttle\Settings\ElasticWindowSettings;
-use Sunspikes\Ratelimit\Throttle\Settings\ThrottleSettingsInterface;
-use Yireo\GraphQlRateLimiting\Cache\Adapter;
+use GraphQL\Language\AST\DocumentNode;
+use Magento\Framework\Lock\LockManagerInterface;
 use Yireo\GraphQlRateLimiting\Config\Config;
 use Yireo\GraphQlRateLimiting\Request\Identification;
 use Yireo\GraphQlRateLimiting\Request\Information;
 
 class Limiter
 {
-    const ERROR_MSG_LIMIT_QUERIES = 'A maximum of %d queries has been reached';
+    public const ERROR_MSG = 'Too many requests, please try again later';
 
-    const ERROR_MSG_LIMIT_MUTATIONS = 'A maximum of %d mutations has been reached';
+    private const LOCK_TIMEOUT = 5;
 
     private bool $limitExceeded = false;
 
-    /**
-     * @var Config
-     */
-    private $config;
+    private int $retryAfter = 0;
 
     /**
-     * @var Adapter
-     */
-    private $cacheAdapter;
-
-    /**
-     * @var Information
-     */
-    private $requestInformation;
-
-    /**
-     * @var Identification
-     */
-    private $requestIdentification;
-
-    /**
-     * QueryComplexityLimiterPlugin constructor.
      * @param Config $config
-     * @param Adapter $cacheAdapter
+     * @param Counter $counter
      * @param Information $requestInformation
      * @param Identification $requestIdentification
+     * @param LockManagerInterface $lockManager
      */
     public function __construct(
-        Config $config,
-        Adapter $cacheAdapter,
-        Information $requestInformation,
-        Identification $requestIdentification
+        private readonly Config $config,
+        private readonly Counter $counter,
+        private readonly Information $requestInformation,
+        private readonly Identification $requestIdentification,
+        private readonly LockManagerInterface $lockManager
     ) {
-        $this->config = $config;
-        $this->cacheAdapter = $cacheAdapter;
-        $this->requestInformation = $requestInformation;
-        $this->requestIdentification = $requestIdentification;
     }
 
     /**
-     * @param string $source
-     * @param int $maxRequests
-     * @param string $msg
+     * Count one hit per root field of the executed operation and deny the request when a maximum is exceeded
+     *
+     * @param DocumentNode $document
+     * @param string|null $operationName
      * @return bool
      * @throws Error
-     * @throws SyntaxError
      */
-    public function limit(
-        string $source,
-        int $maxRequests,
-        string $msg = self::ERROR_MSG_LIMIT_QUERIES
-    ): bool {
+    public function limitDocument(DocumentNode $document, ?string $operationName = null): bool
+    {
         if (!$this->config->enabled()) {
             return false;
         }
 
-        $identifier = $this->requestIdentification->getUniqIdFromRequestAndSource($source);
-        $rateLimiter = $this->getRateLimiter($maxRequests);
-        $throttler = $rateLimiter->get($identifier);
-        if ($throttler->access() === false) {
-            $this->limitExceeded = true;
-            throw new Error(sprintf((string)__($msg), $maxRequests));
+        $operationType = $this->requestInformation->getOperation($document, $operationName)->operation;
+        $maxRequests = $this->getMaxRequests($operationType);
+        $timeFrame = $this->config->getTimeFrameInSeconds();
+        if ($maxRequests <= 0 || $timeFrame <= 0) {
+            return false;
+        }
+
+        $hits = array_count_values($this->requestInformation->getRootFieldNames($document, $operationName));
+        $clientId = $this->requestIdentification->getClientId();
+        $lockName = 'graphql_rate_limiting_' . sha1($clientId);
+        if (!$this->lockManager->lock($lockName, self::LOCK_TIMEOUT)) {
+            $this->deny($timeFrame);
+        }
+
+        try {
+            $now = time();
+            $buckets = [];
+            foreach ($hits as $fieldName => $hitCount) {
+                $bucket = sha1($operationType . '|' . $fieldName . '|' . $clientId);
+                [$count, $expiresAt] = $this->counter->get($bucket);
+                if ($count + $hitCount > $maxRequests) {
+                    $this->deny($expiresAt > 0 ? $expiresAt - $now : $timeFrame);
+                }
+
+                $buckets[$bucket] = [$count + $hitCount, $expiresAt > 0 ? $expiresAt : $now + $timeFrame];
+            }
+
+            foreach ($buckets as $bucket => [$count, $expiresAt]) {
+                $this->counter->save($bucket, $count, $expiresAt);
+            }
+        } finally {
+            $this->lockManager->unlock($lockName);
         }
 
         return true;
     }
 
-    public function isLimitExceeded(): bool
+    /**
+     * @return int
+     */
+    public function getRetryAfter(): int
     {
-        return $this->limitExceeded;
+        return $this->retryAfter;
     }
 
+    /**
+     * @return void
+     */
     public function resetLimitExceeded(): void
     {
         $this->limitExceeded = false;
+        $this->retryAfter = 0;
     }
 
+    /**
+     * @return bool
+     */
     public function consumeLimitExceeded(): bool
     {
         $limitExceeded = $this->limitExceeded;
@@ -108,85 +115,27 @@ class Limiter
     }
 
     /**
-     * @param string $source
-     * @return bool
-     * @throws Error
-     * @throws SyntaxError
-     */
-    public function limitBySource(string $source): bool
-    {
-        $type = $this->requestInformation->isMutationString($source);
-        $msg = ($type) ? self::ERROR_MSG_LIMIT_MUTATIONS : self::ERROR_MSG_LIMIT_QUERIES;
-        return $this->limit($source, $this->getMaxRequests($source), $msg);
-    }
-
-    /**
-     * @param string $identifier
-     * @return bool
-     * @throws Error
-     * @throws SyntaxError
-     */
-    public function limitQuery(string $identifier): bool
-    {
-        if (!$this->config->enabled()) {
-            return false;
-        }
-
-        return $this->limit($identifier, $this->config->getMaxQueries());
-    }
-
-    /**
-     * @param string $identifier
-     * @return bool
-     * @throws Error
-     * @throws SyntaxError
-     */
-    public function limitMutation(string $identifier): bool
-    {
-        if (!$this->config->enabled()) {
-            return false;
-        }
-
-        $msg = self::ERROR_MSG_LIMIT_MUTATIONS;
-        return $this->limit($identifier, $this->config->getMaxMutations(), $msg);
-    }
-
-    /**
-     * @param int $maxRequests
-     * @return RateLimiter
-     * @throws SyntaxError
-     */
-    private function getRateLimiter(int $maxRequests): RateLimiter
-    {
-        return new RateLimiter(
-            new ThrottlerFactory($this->cacheAdapter),
-            new HydratorFactory(),
-            $this->getThrottleSettings($maxRequests)
-        );
-    }
-
-    /**
-     * @param string $source
+     * @param string $operationType
      * @return int
-     * @throws SyntaxError
      */
-    private function getMaxRequests(string $source): int
+    private function getMaxRequests(string $operationType): int
     {
-        if ($this->requestInformation->isMutationString($source)) {
-            return $this->config->getMaxMutations();
+        if ($operationType === 'mutation') {
+            return $this->config->limitMutations() ? $this->config->getMaxMutations() : 0;
         }
 
-        return $this->config->getMaxQueries();
+        return $this->config->limitQueries() ? $this->config->getMaxQueries() : 0;
     }
 
     /**
-     * @return ThrottleSettingsInterface
-     * @throws SyntaxError
+     * @param int $retryAfter
+     * @return void
+     * @throws Error
      */
-    private function getThrottleSettings(int $maxRequests): ThrottleSettingsInterface
+    private function deny(int $retryAfter): void
     {
-        $timeFrameInSeconds = $this->config->getTimeFrameInSeconds();
-        $settings = new ElasticWindowSettings($maxRequests, $timeFrameInSeconds);
-        return $settings;
+        $this->limitExceeded = true;
+        $this->retryAfter = max(1, $retryAfter);
+        throw new Error((string)__('Too many requests, please try again later'));
     }
 }

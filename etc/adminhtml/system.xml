@@ -37,35 +37,31 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="max_mutations" type="text" translate="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="max_mutations" type="text" translate="label comment" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Maximum Mutations</label>
                     <comment>Number of GraphQL mutations to allow within said timeframe</comment>
+                    <validate>required-entry validate-digits validate-greater-than-zero</validate>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="max_queries" type="text" translate="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="max_queries" type="text" translate="label comment" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Maximum Queries</label>
                     <comment>Number of GraphQL queries to allow within said timeframe</comment>
+                    <validate>required-entry validate-digits validate-greater-than-zero</validate>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="timeframe" type="text" translate="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="timeframe" type="text" translate="label comment" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Timeframe</label>
                     <comment>Timeframe in seconds to use with above maxima</comment>
+                    <validate>required-entry validate-digits validate-greater-than-zero</validate>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="cache_ttl" type="text" translate="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
-                    <label>Cache TTL</label>
-                    <comment>Cache expiration for all entries</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
-                </field>
-                <field id="identify_by_user_agent" type="select" translate="label" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="identify_by_user_agent" type="select" translate="label comment" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Identify by User Agent</label>
                     <comment>Identify incoming requests as unique when they have a unique user agent. Not recommended because a user agent is easily spoofed.</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

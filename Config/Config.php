@@ -70,14 +70,6 @@ class Config
     }
 
     /**
-     * @return int
-     */
-    public function getCacheTtlInSeconds(): int
-    {
-        return (int)$this->scopeConfig->getValue('graphql_rate_limiting/settings/cache_ttl');
-    }
-
-    /**
      * @return bool
      */
     public function identifyByUserAgent(): bool

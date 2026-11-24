@@ -20,12 +20,10 @@
         "magento/module-backend": "^102.0",
         "magento/module-config": "^101.2",
         "php": ">=8.2 <8.6",
-        "sunspikes/php-ratelimiter": "1.3.0",
         "webonyx/graphql-php": "^15.0"
     },
     "require-dev": {
         "ext-json": "*",
-        "laminas/laminas-http": "^2.24",
         "magento/module-graph-ql": "^100.4",
         "phpunit/phpunit": "^10.5",
         "yireo/magento2-integration-test-helper": "@dev"
