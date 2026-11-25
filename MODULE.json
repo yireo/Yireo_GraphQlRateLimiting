@@ -7,5 +7,64 @@
         "Magento_GraphQl"
     ],
     "phpcs_severity": "7",
-    "phpstan_level": "5"
+    "phpstan_level": "5",
+    "php_versions": [
+        "7.4"
+    ],
+    "skip_magento_versions": [],
+    "skip_css_utils": false,
+    "modules": [
+        "Magento_Authorization",
+        "Magento_Backend",
+        "Magento_Config",
+        "Magento_Csp",
+        "Magento_Directory",
+        "Magento_Eav",
+        "Magento_GraphQl",
+        "Magento_Store",
+        "Magento_Theme"
+    ],
+    "components": [],
+    "config": [
+        {
+            "path": "graphql_rate_limiting/settings/enabled",
+            "label": "Settings > Enabled",
+            "description": ""
+        },
+        {
+            "path": "graphql_rate_limiting/settings/limit_mutations",
+            "label": "Settings > Limit Mutations",
+            "description": ""
+        },
+        {
+            "path": "graphql_rate_limiting/settings/limit_queries",
+            "label": "Settings > Limit Queries",
+            "description": ""
+        },
+        {
+            "path": "graphql_rate_limiting/settings/max_mutations",
+            "label": "Settings > Maximum Mutations",
+            "description": ""
+        },
+        {
+            "path": "graphql_rate_limiting/settings/max_queries",
+            "label": "Settings > Maximum Queries",
+            "description": ""
+        },
+        {
+            "path": "graphql_rate_limiting/settings/timeframe",
+            "label": "Settings > Timeframe",
+            "description": ""
+        },
+        {
+            "path": "graphql_rate_limiting/settings/identify_by_user_agent",
+            "label": "Settings > Identify by User Agent",
+            "description": ""
+        }
+    ],
+    "tests": {
+        "unit": 26,
+        "integration": 9,
+        "functional": 0
+    }
 }
