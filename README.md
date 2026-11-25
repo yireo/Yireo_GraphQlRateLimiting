@@ -1,10 +1,14 @@
 # Yireo GraphQlRateLimiting
 
 <!-- badges.specs.start -->
+<div class="github-specs-badges">
+
 ![Magento version](https://img.shields.io/badge/Magento-2.4.6%20%7C%202.4.9-orange)
 ![PHP version](https://img.shields.io/badge/PHP-8.2%E2%80%938.5-777BB4)
 ![License](https://img.shields.io/badge/License-OSL--3.0-blue)
 ![Latest Version](https://img.shields.io/packagist/v/yireo/magento2-graph-ql-rate-limiting)
+
+</div>
 <!-- badges.specs.end -->
 
 **Magento 2 module to add rate limiting to GraphQL resources**
@@ -87,9 +91,13 @@ After running the same query three times, the next request returns HTTP status 4
 ## Current status
 
 <!-- badges.test.start -->
+<div class="github-pipeline-badges">
+
 ![Static Tests](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/static-tests.yml?label=static-tests)
 ![Unit Tests](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/unit-tests.yml?label=unit-tests)
 ![Integration Tests](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/integration-tests.yml?label=integration-tests)
 ![Playwright](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/playwright.yml?label=playwright)
 ![DI Compilation](https://img.shields.io/github/actions/workflow/status/yireo/Yireo_GraphQlRateLimiting/compile.yml?label=compile)
+
+</div>
 <!-- badges.test.end -->
