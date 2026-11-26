@@ -3,47 +3,50 @@
 namespace Yireo\GraphQlRateLimiting\Plugin;
 
 use GraphQL\Error\Error;
-use Yireo\GraphQlRateLimiting\Rate\Limiter as RateLimiter;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\Parser;
 use Magento\Framework\GraphQl\Query\QueryProcessor;
 use Magento\Framework\GraphQl\Query\Resolver\ContextInterface;
 use Magento\Framework\GraphQl\Schema;
+use Yireo\GraphQlRateLimiting\Rate\Limiter;
 
 class QueryProcessorPlugin
 {
     /**
-     * @var RateLimiter
+     * @var Limiter
      */
-    private $rateLimiter;
+    private $limiter;
 
     /**
-     * QueryComplexityLimiterPlugin constructor.
-     * @param RateLimiter $rateLimiter
+     * @param Limiter $limiter
      */
     public function __construct(
-        RateLimiter $rateLimiter
+        Limiter $limiter
     ) {
-        $this->rateLimiter = $rateLimiter;
+        $this->limiter = $limiter;
     }
 
     /**
      * @param QueryProcessor $queryProcessor
      * @param Schema $schema
-     * @param string $source
+     * @param DocumentNode|string $source
      * @param ContextInterface|null $contextValue
-     * @param mixed[]|null $variableValues
+     * @param array|null $variableValues
      * @param string|null $operationName
-     * @return mixed[]
+     * @return array
      * @throws Error
      */
     public function beforeProcess(
         QueryProcessor $queryProcessor,
         Schema $schema,
-        string $source,
-        ContextInterface $contextValue = null,
-        array $variableValues = null,
-        string $operationName = null
+        $source,
+        ?ContextInterface $contextValue = null,
+        ?array $variableValues = null,
+        ?string $operationName = null
     ): array {
-        $this->rateLimiter->limitBySource($source);
+        $document = $source instanceof DocumentNode ? $source : Parser::parse((string)$source);
+        $this->limiter->limitDocument($document, $operationName);
+
         return [$schema, $source, $contextValue, $variableValues, $operationName];
     }
 }
