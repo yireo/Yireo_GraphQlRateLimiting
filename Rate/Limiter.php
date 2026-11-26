@@ -3,22 +3,18 @@
 namespace Yireo\GraphQlRateLimiting\Rate;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\SyntaxError;
-use Sunspikes\Ratelimit\RateLimiter;
-use Sunspikes\Ratelimit\Throttle\Factory\ThrottlerFactory;
-use Sunspikes\Ratelimit\Throttle\Hydrator\HydratorFactory;
-use Sunspikes\Ratelimit\Throttle\Settings\ElasticWindowSettings;
-use Sunspikes\Ratelimit\Throttle\Settings\ThrottleSettingsInterface;
-use Yireo\GraphQlRateLimiting\Cache\Adapter;
+use GraphQL\Language\AST\DocumentNode;
+use Magento\Framework\Lock\LockManagerInterface;
 use Yireo\GraphQlRateLimiting\Config\Config;
+use Yireo\GraphQlRateLimiting\Exception\RequestParsingException;
 use Yireo\GraphQlRateLimiting\Request\Identification;
 use Yireo\GraphQlRateLimiting\Request\Information;
 
 class Limiter
 {
-    const ERROR_MSG_LIMIT_QUERIES = 'A maximum of %d queries has been reached';
+    public const ERROR_MSG = 'Too many requests, please try again later';
 
-    const ERROR_MSG_LIMIT_MUTATIONS = 'A maximum of %d mutations has been reached';
+    private const LOCK_TIMEOUT = 5;
 
     /**
      * @var Config
@@ -26,9 +22,9 @@ class Limiter
     private $config;
 
     /**
-     * @var Adapter
+     * @var Counter
      */
-    private $cacheAdapter;
+    private $counter;
 
     /**
      * @var Information
@@ -41,131 +37,100 @@ class Limiter
     private $requestIdentification;
 
     /**
-     * QueryComplexityLimiterPlugin constructor.
+     * @var LockManagerInterface
+     */
+    private $lockManager;
+
+    /**
      * @param Config $config
-     * @param Adapter $cacheAdapter
+     * @param Counter $counter
      * @param Information $requestInformation
      * @param Identification $requestIdentification
+     * @param LockManagerInterface $lockManager
      */
     public function __construct(
         Config $config,
-        Adapter $cacheAdapter,
+        Counter $counter,
         Information $requestInformation,
-        Identification $requestIdentification
+        Identification $requestIdentification,
+        LockManagerInterface $lockManager
     ) {
         $this->config = $config;
-        $this->cacheAdapter = $cacheAdapter;
+        $this->counter = $counter;
         $this->requestInformation = $requestInformation;
         $this->requestIdentification = $requestIdentification;
+        $this->lockManager = $lockManager;
     }
 
     /**
-     * @param string $source
-     * @param int $maxRequests
-     * @param string $msg
+     * @param DocumentNode $document
+     * @param string|null $operationName
      * @return bool
      * @throws Error
-     * @throws SyntaxError
+     * @throws RequestParsingException
      */
-    public function limit(
-        string $source,
-        int $maxRequests,
-        string $msg = self::ERROR_MSG_LIMIT_QUERIES
-    ): bool {
+    public function limitDocument(DocumentNode $document, ?string $operationName = null): bool
+    {
         if (!$this->config->enabled()) {
             return false;
         }
 
-        $identifier = $this->requestIdentification->getUniqIdFromRequestAndSource($source);
-        $rateLimiter = $this->getRateLimiter($maxRequests);
-        $throttler = $rateLimiter->get($identifier);
-        if ($throttler->access() === false) {
-            throw new Error(sprintf((string)__($msg), $maxRequests));
+        $operationType = $this->requestInformation->getOperation($document, $operationName)->operation;
+        $maxRequests = $this->getMaxRequests($operationType);
+        $timeFrame = $this->config->getTimeFrameInSeconds();
+        if ($maxRequests <= 0 || $timeFrame <= 0) {
+            return false;
+        }
+
+        $hits = array_count_values($this->requestInformation->getRootFieldNames($document, $operationName));
+        $clientId = $this->requestIdentification->getClientId();
+        $lockName = 'graphql_rate_limiting_' . sha1($clientId);
+        if (!$this->lockManager->lock($lockName, self::LOCK_TIMEOUT)) {
+            $this->deny();
+        }
+
+        try {
+            $now = time();
+            $buckets = [];
+            foreach ($hits as $fieldName => $hitCount) {
+                $bucket = sha1($operationType . '|' . $fieldName . '|' . $clientId);
+                [$count, $expiresAt] = $this->counter->get($bucket);
+                if ($count + $hitCount > $maxRequests) {
+                    $this->deny();
+                }
+
+                $buckets[$bucket] = [$count + $hitCount, $expiresAt > 0 ? $expiresAt : $now + $timeFrame];
+            }
+
+            foreach ($buckets as $bucket => [$count, $expiresAt]) {
+                $this->counter->save((string)$bucket, $count, $expiresAt);
+            }
+        } finally {
+            $this->lockManager->unlock($lockName);
         }
 
         return true;
     }
 
     /**
-     * @param string $source
-     * @return bool
-     * @throws Error
-     * @throws SyntaxError
-     */
-    public function limitBySource(string $source): bool
-    {
-        $type = $this->requestInformation->isMutationString($source);
-        $msg = ($type) ? self::ERROR_MSG_LIMIT_MUTATIONS : self::ERROR_MSG_LIMIT_QUERIES;
-        return $this->limit($source, $this->getMaxRequests($source), $msg);
-    }
-
-    /**
-     * @param string $identifier
-     * @return bool
-     * @throws Error
-     * @throws SyntaxError
-     */
-    public function limitQuery(string $identifier): bool
-    {
-        if (!$this->config->enabled()) {
-            return false;
-        }
-
-        return $this->limit($identifier, $this->config->getMaxQueries());
-    }
-
-    /**
-     * @param string $identifier
-     * @return bool
-     * @throws Error
-     * @throws SyntaxError
-     */
-    public function limitMutation(string $identifier): bool
-    {
-        if (!$this->config->enabled()) {
-            return false;
-        }
-
-        $msg = self::ERROR_MSG_LIMIT_MUTATIONS;
-        return $this->limit($identifier, $this->config->getMaxMutations(), $msg);
-    }
-
-    /**
-     * @param int $maxRequests
-     * @return RateLimiter
-     * @throws SyntaxError
-     */
-    private function getRateLimiter(int $maxRequests): RateLimiter
-    {
-        return new RateLimiter(
-            new ThrottlerFactory($this->cacheAdapter),
-            new HydratorFactory(),
-            $this->getThrottleSettings($maxRequests)
-        );
-    }
-
-    /**
-     * @param string $source
+     * @param string $operationType
      * @return int
-     * @throws SyntaxError
      */
-    private function getMaxRequests(string $source): int
+    private function getMaxRequests(string $operationType): int
     {
-        if ($this->requestInformation->isMutationString($source)) {
-            return $this->config->getMaxMutations();
+        if ($operationType === 'mutation') {
+            return $this->config->limitMutations() ? $this->config->getMaxMutations() : 0;
         }
 
-        return $this->config->getMaxQueries();
+        return $this->config->limitQueries() ? $this->config->getMaxQueries() : 0;
     }
 
     /**
-     * @return ThrottleSettingsInterface
-     * @throws SyntaxError
+     * @return void
+     * @throws Error
      */
-    private function getThrottleSettings(int $maxRequests): ThrottleSettingsInterface
+    private function deny(): void
     {
-        $timeFrameInSeconds = $this->config->getTimeFrameInSeconds();
-        $settings = new ElasticWindowSettings($maxRequests, $timeFrameInSeconds);
-        return $settings;
+        throw new Error((string)__(self::ERROR_MSG));
     }
 }

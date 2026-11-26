@@ -2,21 +2,13 @@
 
 namespace Yireo\GraphQlRateLimiting\Request;
 
-use GraphQL\Error\SyntaxError;
 use Magento\Framework\HTTP\Header;
 use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Yireo\GraphQlRateLimiting\Config\Config;
-use Yireo\GraphQlRateLimiting\Exception\RequestParsingException;
 
-/**
- * Class Identification to identify a specific combination of unique visitor and GraphQL request
- */
 class Identification
 {
-    /**
-     * @var Information
-     */
-    private $information;
+    private const MAX_USER_AGENT_LENGTH = 255;
 
     /**
      * @var Header
@@ -26,7 +18,7 @@ class Identification
     /**
      * @var RemoteAddress
      */
-    private $remoteIp;
+    private $remoteAddress;
 
     /**
      * @var Config
@@ -34,41 +26,49 @@ class Identification
     private $config;
 
     /**
-     * Identification constructor.
-     * @param Information $information
      * @param Header $httpHeader
-     * @param RemoteAddress $remoteIp
+     * @param RemoteAddress $remoteAddress
      * @param Config $config
      */
     public function __construct(
-        Information $information,
         Header $httpHeader,
-        RemoteAddress $remoteIp,
+        RemoteAddress $remoteAddress,
         Config $config
     ) {
-        $this->information = $information;
         $this->httpHeader = $httpHeader;
-        $this->remoteIp = $remoteIp;
+        $this->remoteAddress = $remoteAddress;
         $this->config = $config;
     }
 
     /**
-     * @param string $source
      * @return string
-     * @throws SyntaxError
-     * @throws RequestParsingException
      */
-    public function getUniqIdFromRequestAndSource(string $source): string
+    public function getClientId(): string
     {
-        $parts = [];
-        $parts[] = $this->information->getOperationFromSource($source);
-        $parts[] = $this->information->getEndpointFromSource($source);
-        $parts[] = $this->remoteIp->getRemoteAddress();
+        $parts = [$this->normalizeAddress((string)$this->remoteAddress->getRemoteAddress())];
 
         if ($this->config->identifyByUserAgent()) {
-            $parts[] = $this->httpHeader->getHttpUserAgent();
+            $parts[] = mb_substr((string)$this->httpHeader->getHttpUserAgent(), 0, self::MAX_USER_AGENT_LENGTH);
         }
 
-        return implode('/', $parts);
+        return implode('|', $parts);
+    }
+
+    /**
+     * @param string $address
+     * @return string
+     */
+    public function normalizeAddress(string $address): string
+    {
+        $binary = filter_var($address, FILTER_VALIDATE_IP) ? inet_pton($address) : false;
+        if ($binary === false) {
+            return 'unknown';
+        }
+
+        if (strlen($binary) !== 16) {
+            return (string)inet_ntop($binary);
+        }
+
+        return inet_ntop(substr($binary, 0, 8) . str_repeat("\0", 8)) . '/64';
     }
 }
