@@ -13,7 +13,13 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
-                <resource id="Yireo_GraphQlRateLimiting::index" title="Yireo GraphQlRateLimiting" sortOrder="10"/>
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Yireo_GraphQlRateLimiting::config" title="Yireo GraphQL Rate Limiting" sortOrder="342"/>
+                        </resource>
+                    </resource>
+                </resource>
             </resource>
         </resources>
     </acl>
