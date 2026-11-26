@@ -1,2 +1,10 @@
 .secrets
 .yireo-extension-builder.json
+.php-cs-fixer.cache
+.phpunit.result.cache
+.ai/
+.playwright/
+node_modules/
+.opencode/
+.gitlab-ci-local/
+MEMORY.md
